@@ -1,0 +1,41 @@
+body
+{
+	BACKGROUND-POSITION-X: center;
+	MARGIN: 1px; 
+	font-family: "Verdana", "Arial", "Helvetica", "sans-serif";
+	font-size: 12px;
+	line-height: 145%;
+}
+TD
+{
+	color: #000000;
+	FONT-FAMILY: "宋体", "Verdana";
+	font-size: 12px;
+	line-height: 145%;
+}
+INPUT
+{
+	FONT-FAMILY: "宋体", "Verdana";
+	font-size: 12px;height: 22px;
+}
+select,textarea,option
+{
+	FONT-FAMILY:  "宋体", "Verdana", "Arial", "Helvetica", "sans-serif";
+	font-size: 12px;
+}
+a
+{
+	FONT-FAMILY: "宋体";
+	TEXT-DECORATION: none;
+	line-height: 130%;
+}
+a:link,a:visited
+{
+	color:#000000;
+	text-decoration: none;
+}
+a:hover
+{
+	color: #ff0000;
+	text-decoration: underline;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>{$title$} - 2012世界末日</title>
+<meta name="keywords" content="{$keywords$}" />
+<meta name="description" content="{$description$}" />
+<link href="../images/main.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="web">
+<div id="top">
+<div class="l"><a href="../"><img src="../images/logo.gif" alt="2012世界末日" /></a></div>
+<div class="r"></div>
+</div>
+<div id="navbar">
+<div class="l"></div>
+<div class="r"></div>
+<div class="m">
+<a href="/">首页</a></div>
+</div>
+<div id="ads_top">
+<object type="application/x-shockwave-flash" data="../images/top.swf" width="935" height="187">
+<param name="movie" value="../images/top.swf" />
+</object>
+</div>
+<div id="list">
+<div class="l">{$addtime$}{$html$}{$about$}</div>
+<div class="r">
+<div class="tui">{$top10$}</div>
+</div>
+</div>
+<div id="foot">
+<img src="../images/di.gif" width="935" height="2" alt="" />
+<ul>
+<li>声明：本站目的是倡议人类保护环境，珍爱地球。文章来自网络，并不一定真实，对产生后果不负任何责任！</li>
+<li>&copy; {$date$} All Rights Reserved.</li>
+</ul>
+</div>
+</div>{$hot$}
+</body>
+</html>
