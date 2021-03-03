@@ -1,219 +1,494 @@
-<!-- #include file="../inc/conn-bbs.asp" -->
-<!-- #include file="../inc/check_admin_session.asp" -->
-<!-- #include file="../inc/fun-admin.asp" -->
-<!-- #include file="../inc/newfun_db.asp" -->
-<html>
+<!--#include file="../Inc/conn.asp"-->
+<!--#include file="../Inc/Function_Page.asp"-->
+<!--#include file="Admin_check.asp"-->
+<%
+Call chkAdmin(7)
+%>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>链接管理</title>
-<meta http-equiv="Content-Type" content="text/html; charset=gb2312">   
-<link href="../inc/wdiii/common.css" rel="stylesheet">
-   <link href="../inc/wdiii/table.css" rel="stylesheet">
-   <script src="../inc/wdiii/index.js" type="text/javascript"></script>
-   
-    
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>网站后台管理</title>
+<link href="images/Admin_css.css" type=text/css rel=stylesheet>
 
-</head><body>
+<script src="js/admin.js"></script>
+</head>
+
+<body>
+<table width="95%" border="0" cellspacing="2" cellpadding="3"  align=center class="admintable" style="margin-bottom:5px;">
+    <tr><form name="form1" method="get" action="Admin_Link.asp">
+      <td height="25" bgcolor="f7f7f7">快速查找：
+        <SELECT onChange="javascript:window.open(this.options[this.selectedIndex].value,'main')"  size="1" name="s">
+        <OPTION value="" selected>-=请选择=-</OPTION>
+        <OPTION value="?s=all">所有链接</OPTION>
+        <OPTION value="?s=yn1">已审的链接</OPTION>
+        <OPTION value="?s=yn0">未审的链接</OPTION>
+        <OPTION value="?s=3">Logo链接</OPTION>
+        <OPTION value="?s=1">已经过期的链接</OPTION>
+        <OPTION value="?s=2">明天过期的链接</OPTION>
+        <OPTION value="?s=4">后天过期的链接</OPTION>
+      </SELECT>      </td>
+      <td align="center" bgcolor="f7f7f7">
+        <a href="?hits=1"></a>
+        <input name="keyword" type="text" id="keyword" value="<%=request("keyword")%>">
+        <input type="submit" name="Submit2" value="搜索">
+      
+    </form></td>
+      <td align="right" bgcolor="f7f7f7">跳转到：
+        <select name="ClassID" id="ClassID" onChange="javascript:window.open(this.options[this.selectedIndex].value,'main')">
+    <%
+   Dim Sqlp,Rsp,TempStr
+   Sqlp ="select * from "&tbname&"_LinkClass order by num"   
+   Set Rsp=server.CreateObject("adodb.recordset")   
+   rsp.open sqlp,conn,1,1 
+   Response.Write("<option value="""">请选择分类</option>") 
+   If Rsp.Eof and Rsp.Bof Then
+      Response.Write("<option value="""">请先添加分类</option>")
+   Else
+      Do while not Rsp.Eof   
+         Response.Write("<option value=" & """?ClassID=" & Rsp("ID") & """" & "")
+		 If int(request("ClassID"))=Rsp("ID") then
+				Response.Write(" selected" ) 
+		 End if
+         Response.Write(">|-" & Rsp("LinkName") & "")
+         Response.Write("</option>" ) 
+      Rsp.Movenext   
+      Loop   
+   End if
+   Rsp.close:Set Rsp=nothing
+	%>
+        </select></td>
+    </tr>
+</table>
+<script language="javascript" type="text/javascript" src="<%=SitePath%>js/setdate/WdatePicker.js"></script>
 <%
-page_no=chk_num(trim_fun(request("page_no")))
-mydo=trim_fun(request("mydo"))
-modid=chk_num(trim_fun(request("modid")))
+	if request("action") = "add" then 
+		call add()
+	elseif request("action")="edit" then
+		call edit()
+	elseif request("action")="savenew" then
+		call savenew()
+	elseif request("action")="savedit" then
+		call savedit()
+	elseif request("action")="yn1" then
+		call yn1()
+	elseif request("action")="yn2" then
+		call yn2()
+	elseif request("action")="del" then
+		call del()
+	elseif request("action")="delAll" then
+		call delAll()
+	else
+		call List()
+	end if
+
+sub List()
 %>
-
-
-<div class="table-topmenu" >
-
-    <div class="table-topmenu-left">
-    	<a class="btn <%if len(mydo)=0 then %>btn-gray<%else%>btn-gray2<%end if%>" href="?">链接列表</a> 
-        <a class="btn <%if len(mydo)>0 then %>btn-gray<%else%>btn-gray2<%end if%>" href="?mydo=add" title="增加链接">增加链接</a>
-    </div>
-    
-    <div class="table-topmenu-right">
-  </div>
-    
+<form name="myform" method="POST" action="Admin_Link.asp?action=delAll">
+<table width="95%" border="0"  align=center cellpadding="3" cellspacing="2" bgcolor="#FFFFFF" class="admintable">
+<tr> 
+  <td colspan="8" align=left class="admintitle">链接列表　[<a href="?action=add">添加</a>]　[<a href="Admin_LinkClass.asp">链接分类</a>]</td>
+</tr>
+<tr bgcolor="#f1f3f5" style="font-weight:bold;">
+	<td width="3%" height="30" align="center" class="ButtonList">&nbsp;</td>
+    <td width="37%" height="30" align="center" class="ButtonList">链接名称</td>
+    <td width="5%" align="center" class="ButtonList">费用</td>
+    <td width="12%" height="25" align="center" bgcolor="#f1f3f5" class="ButtonList">加入时间</td>
+    <td width="12%" height="25" align="center" bgcolor="#f1f3f5" class="ButtonList">到期时间</td>
+    <td width="5%" height="25" align="center" bgcolor="#f1f3f5" class="ButtonList">排序</td>
+    <td width="14%" align="center" bgcolor="#f1f3f5" class="ButtonList">联系QQ</td>
+    <td width="12%" height="25" align="center" bgcolor="#f1f3f5" class="ButtonList">管理</td>    
+  </tr>
+<%
+If laoyvip then dlink=3 else dlink=2
+page=request("page")
+Hits=request("hits")
+s=Request("s")
+Articleclass=request("ClassID")
+keyword=request("keyword")
+NOI=0
+Set mypage=new xdownpage
+mypage.getconn=conn
+mysql="select * from "&tbname&"_Link Where yn<>"&dlink&""
+	if s="yn0" then
+	mysql=mysql&" And yn=0"
+	elseif s="yn1" then
+	mysql=mysql&" And yn=1"
+	elseif s="1" then
+	If IsSqlDataBase = 1 Then
+	mysql=mysql&" And datediff(dd,GetDate(),LastTime) <= 0"
+	else
+	mysql=mysql&" And datediff('d',Now(),LastTime) <= 0"
+	end if
+	elseif s="2" then
+	If IsSqlDataBase = 1 Then
+	mysql=mysql&" And datediff(dd,GetDate(),LastTime) = 1"
+	else
+	mysql=mysql&" And datediff('d',Now(),LastTime) = 1"
+	end if
+	elseif s="4" then
+	If IsSqlDataBase = 1 Then
+	mysql=mysql&" And datediff(dd,GetDate(),LastTime) = 2"
+	else
+	mysql=mysql&" And datediff('d',Now(),LastTime) = 2"
+	end if
+	elseif s="3" then
+	mysql=mysql&" And LogoUrl<>''"
+	elseif s="ishot" then
+	mysql=mysql&" And ishot=1"
+	elseif s="img" then
+	mysql=mysql&" And images<>''"
+	elseif s="url" then
+	mysql=mysql&" And LinkUrl<>''"
+	elseif s="user" then
+	mysql=mysql&" And UserName<>''"
+	elseif Articleclass<>"" then
+	mysql=mysql&" And ClassID="&Articleclass&""
+	elseif keyword<>"" then
+	mysql=mysql&" And Title like '%"&keyword&"%' or LinkUrl like '%"&keyword&"%' or QQ like '%"&keyword&"%'"
+	End if
+mysql=mysql&" order by Num asc,id asc"
+mypage.getsql=mysql
+mypage.pagesize=100
+set rs=mypage.getrs()
+for i=1 to mypage.pagesize
+    if not rs.eof then
+NOI=NOI+1
+%>
+    <tr bgcolor="#f1f3f5" onMouseOver="this.style.backgroundColor='#EAFCD5';this.style.color='red'" onMouseOut="this.style.backgroundColor='';this.style.color=''">
+    <td height="25" align="CENTER"><input type="checkbox" value="<%=rs("ID")%>" name="ID" onClick="unselectall(this.form)" style="border:0;">
+      <input name="LinkID" type="hidden" id="LinkID" value="<%=rs("ID")%>"></td>
+    <td height="25"><%=NOI%>.[<a href="?ClassID=<%=rs("ClassID")%>"><%=linkclassname(rs("ClassID"))%></a>]
+      <input name="Title" type="text" id="Title" value="<%=rs("Title")%>" size="15">
+      <input name="LinkUrl" type="text" id="LinkUrl" value="<%=rs("LinkUrl")%>" size="20">
+      <%If rs("Logourl")<>"" then Response.Write("<font color=red>[图]</font>") End if%></td>
+    <td height="25" align="center"><input name="Moneys" type="text" id="Moneys" value="<%=rs("Moneys")%>" size="4" maxlength="4"></td>
+    <td height="25" align="center"><input name="AddTimes" type="text" id="AddTimes" value="<%=rs("AddTime")%>" size="9"></td>
+    <td height="25" align="center"><input name="LastTime" type="text" id="LastTime" value="<%=rs("LastTime")%>" size="9"><%If datediff("d",Now(),rs("LastTime"))<=0 then Response.Write("<font color=red>[已过期]</font>") else:If datediff("d",Now(),rs("LastTime"))<=1 then Response.Write("<font color=red>[明天过期]</font>") End if%></td>
+    <td height="25" align="center"><input name="Num" type="text" id="Num" value="<%=rs("Num")%>" size="4" maxlength="4"></td>
+    <td height="25" align="center"><%if rs("qq")<>"" then%><a href="tencent://message/?uin=<%=rs("qq")%>&amp;Site=www.laoy.net&amp;Menu=yes"><img border=0 src=http://wpa.qq.com/pa?p=4:<%=rs("qq")%>:4 alt="点击这里给我发消息" height=16 align="absmiddle" /></a><%end if%><input name="qq" type="text" id="qq" value="<%=rs("qq")%>" size="10"></td>
+    <td align="center"><%If rs("yn")=1 then Response.Write("已审") else Response.Write("<font color=red>未审</font>") end if%>|<a href="?action=edit&id=<%=rs("ID")%>">编辑</a></td>    
+  </tr>
+<%
+        rs.movenext
+    else
+         exit for
+    end if
+next
+%>
+	<tr bgcolor="#f1f3f5" onMouseOver="this.style.backgroundColor='#EAFCD5';this.style.color='red'" onMouseOut="this.style.backgroundColor='';this.style.color=''">
+    <td height="25" align="center" bgcolor="#f1f3f5"><input name="Action" type="hidden"  value="Del">
+      <input name="chkAll" type="checkbox" id="chkAll" onClick=CheckAll(this.form) value="checkbox" style="border:0"></td>
+    <td height="25" colspan="7" bgcolor="#f1f3f5"><font color=red>移动到：</font>
+      <select id="ytype" name="ytype">
+        <%call Admin_ShowClass_Option()%>
+      </select>
+&nbsp;
+<input name="Del" type="submit" class="bnt" id="Del" value="移动">
+<input name="Del" type="submit" class="bnt" id="Del"  onClick="JavaScript:return confirm('删除吗？')" value="删除">
+<input name="Del" type="submit" class="bnt" id="Del" value="批量未审">
+<input name="Del" type="submit" class="bnt" id="Del" value="批量审核">
+<input name="Del" type="submit" class="bnt" id="Del" value="编辑">
+　本月(<%=month(Now())%>月)收入： <b><%=Mydb("Select Sum([Moneys]) From ["&tbname&"_Link] Where month(AddTime)=month("&SqlNowString&")",1)(0)%></b> 元</td>
+    </tr>
+  <tr><td bgcolor="f7f7f7" colspan="8" align="left"><div id="page">
+	<ul style="text-align:left;">
+    <%=mypage.showpage()%>
+    </ul>
 </div>
-
-
-<%
-
-
-
-
-
-
-select case mydo
-case "add"
-%>
-<form name="form" method="post" action="?mydo=addok">
-    <table class="table table-bordered table-responsive">
-        <thead>
-            <tr> 
-                <th align="left" width="30%">&nbsp;&nbsp;&nbsp;&nbsp;增加新链接</th>
-                <th align="left" width="70%"></th>             
-            </tr>
-        </thead>
-        <tbody>
-            <tr> 
-                <td align="right">链接名称</td>
-                <td align="left"><input type="text" name="link_title" class="form-control" placeholder="链接名称"></td>           </tr>
-            <tr> 
-                <td align="right">链接地址</td>
-                <td align="left"><input type="text" name="link_url" class="form-control" placeholder="链接地址"></td>           </tr>
-                
-            <tr> 
-                <td align="right"></td>
-                <td align="left"><input type="submit" class="btn btn-submit" value="确定"></td>           </tr>
-        </tbody>
-    </table>
+</td></tr>
+</table>
 </form>
 <%
-response.End()
-case "addok"
-	link_title=trim_fun(request("link_title"))
-	link_url=trim_fun(request("link_url"))
-	call dperror_admin(len(link_title)=0 or isnull(link_title),"标题不能为空","")
-	call dperror_admin(len(link_url)=0 or isnull(link_url),"网址不能为空","")
-	'读取最高排序
-	sql="select top 1 * from BBS_Link order by link_order desc"
-	set rs=bbsconn.execute(sql)
-	max_order=0
-	if not rs.eof then max_order=chk_num(rs("link_order"))
-	max_order=max_order+1
-	sql="select * from BBS_Link where link_title='"& link_title &"' and link_url='"& link_url &"'"
-	set rs=server.CreateObject("adodb.recordset")
-	rs.open sql,bbsconn,1,3
-	call dperror_admin(not rs.eof,"重复的链接","")
-	rs.addnew
-		rs("link_title")=link_title
-		rs("link_url")=link_url
-		rs("link_time")=thistime
-		rs("link_order")=max_order
-	rs.update
-	call dperror_admin(true,"添加成功","?")
-	response.End()
-case "del"	
-	call dperror_admin(modid<=0,"ID出错","?")
-	sql="delete * from BBS_Link where id="& modid &""
-	set rs=bbsconn.execute(sql)
-	call dperror_admin(true,"删除成功","?")
-	response.End()
-case "order"
-	order_how=chk_num(trim_fun(request("order_how")))
-	if order_how<=0 then order_how=1
-	call dperror_admin(modid<=0,"ID出错","?")
+rs.close
+set rs=nothing
+end sub
+
+sub add()
+%>
+<table width="95%" border="0"  align=center cellpadding="3" cellspacing="2" bgcolor="#FFFFFF" class="admintable">
+<form action="?action=savenew" name="myform" method=post>
+<tr> 
+    <td colspan="3" align=left class="admintitle">添加链接 [<a href="Admin_link.asp">链接列表</a>]</td>
+</tr>
+<tr> 
+<td width="20%" class="b1_1">标题</td>
+<td colspan="2" class="b1_1"><input name="Title" type="text" id="Title" size="40" maxlength="50"></td>
+</tr>
+<tr>
+  <td class="b1_1">所属分类</td>
+  <td colspan="2" class="b1_1"><select ID="ClassID" name="ClassID">
+    <%call Admin_ShowClass_Option()%>
+  </select></td>
+</tr>
+<tr>
+  <td class="b1_1">链接地址</td>
+  <td colspan="2" class="b1_1"><input name="LinkUrl" type="text" id="LinkUrl" value="http://" size="40" maxlength="50"></td>
+</tr>
+<tr>
+  <td class="b1_1">Logo地址</td>
+  <td width="21%" class="b1_1"><input name="LogoUrl" type="text" id="LogoUrl" size="40" maxlength="250"></td>
+  <td width="59%" class="b1_1"><iframe src="upload.asp?action=link" width="400" height="25" frameborder="0" scrolling="no"></iframe></td>
+</tr>
+<tr>
+  <td class="b1_1">开始时间</td>
+  <td colspan="2" class="b1_1"><input name='AddTime' type='text' class="borderall" id="AddTime" style="width:140px;" onFocus="WdatePicker({isShowClear:false,readOnly:true,minDate:'%y-%M-#{%d}',skin:'whyGreen'})" value="<%=date%>"/></td>
+  </tr>
+<tr>
+  <td class="b1_1">到期时间</td>
+  <td colspan="2" class="b1_1"><input name='LastTime' type='text' class="borderall" id="LastTime" style="width:140px;" onFocus="WdatePicker({isShowClear:false,readOnly:true,minDate:'%y-%M-#{%d}',skin:'whyGreen'})" value="<%=date+30%>"/></td>
+</tr>
+<tr>
+  <td class="b1_1">排序</td>
+  <td colspan="2" class="b1_1"><input name="Num" type="text" id="Num" value="<%=iif(Mydb("Select Max([Num]) From ["&tbname&"_Link]",1)(0)+1>0,Mydb("Select Max([Num]) From ["&tbname&"_Link]",1)(0)+1,1)%>" size="5" maxlength="3"> <span class="note">值越小越靠前</span></td>
+</tr>
+<tr>
+  <td class="b1_1">联系QQ</td>
+  <td colspan="2" class="b1_1"><input name="QQ" type="text" id="QQ" size="15" maxlength="10"></td>
+</tr>
+<tr>
+  <td class="b1_1">费用</td>
+  <td colspan="2" class="b1_1"><input name="Moneys" type="text" id="Moneys" value="0" size="8" maxlength="5"></td>
+</tr>
+<tr>
+  <td valign="top" class="b1_1">备注</td>
+  <td colspan="2" class="b1_1"><textarea name="Content" cols="50" rows="5" id="Content"></textarea></td>
+</tr>
+<tr> 
+<td width="20%" class="b1_1"></td>
+<td colspan="2" class="b1_1"><input name="Submit" type="submit" class="bnt" value="添 加"></td>
+</tr>
+</form>
+</table>
+<%
+end sub
+
+sub savenew()
+	Title			=trim(request.form("Title"))
+	ClassID			=trim(request.form("ClassID"))
+	LinkUrl			=trim(request.form("LinkUrl"))
+	LogoUrl			=trim(request.form("LogoUrl"))
+	AddTime			=trim(request.form("AddTime"))
+	LastTime		=trim(request.form("LastTime"))
+	Num				=trim(request.form("Num"))
+	QQ				=trim(request.form("qq"))
+	Content			=request.form("Content")
+	Moneys			=request.form("Moneys")
 	
-	'先读出原本的排序
-	old_order=1
-	sql="select * from BBS_Link where id="& modid &""
-	set rs=bbsconn.execute(sql)	
-	if not rs.eof then old_order=chk_num(rs("link_order"))
-	
-	new_order=1	
-    if order_how=1 then
-		'排前
-		sql="select top 1 * from BBS_Link where link_order>"& old_order &" order by link_order asc"
-	else
-		'排后
-		sql="select top 1 * from BBS_Link where link_order<"& old_order &" order by link_order desc"
+	if Title="" or LinkUrl="" or ClassID="" or LastTime="" then
+		Call Alert ("请填写完整","-1")
 	end if
-	set rs=server.CreateObject("adodb.recordset")
-	rs.open sql,bbsconn,1,3
-	if not rs.eof then
-		new_order=chk_num(rs("link_order"))
-		rs("link_order")=old_order
+	
+	set rs = server.CreateObject ("adodb.recordset")
+	sql="select * from "&tbname&"_Link"
+	rs.open sql,conn,1,3
+		rs.AddNew 
+		rs("Title")				=Title
+		rs("ClassID")			=ClassID
+		rs("LinkUrl")			=LinkUrl	
+		rs("LogoUrl")			=LogoUrl
+		rs("AddTime")			=AddTime
+		rs("LastTime")			=LastTime
+		rs("Num")				=Num
+		rs("qq")				=qq
+		rs("Content")			=Content
+		rs("yn")				=1
+		rs("Moneys")				=Moneys
 		rs.update
-	else
-		new_order=old_order
+		session("YaoLinkClassID")=ClassID
+		Call Alert ("添加成功","Admin_Link.asp?action=add")
+	rs.close
+	set rs=nothing
+end sub
+
+sub edit()
+id=request("id")
+set rs = server.CreateObject ("adodb.recordset")
+sql="select * from "&tbname&"_Link where id="& id &""
+rs.open sql,conn,1,1
+%>
+<table width="95%" border="0"  align=center cellpadding="3" cellspacing="2" bgcolor="#FFFFFF" class="admintable">
+<form action="?action=savedit" name="myform" method=post>
+<tr> 
+    <td colspan="3" align=left class="admintitle">修改链接</td>
+</tr>
+<tr> 
+<td width="20%" class="b1_1">标题</td>
+<td colspan="2" class="b1_1"><input name="Title" type="text" id="Title" value="<%=rs("Title")%>" size="40" maxlength="50"></td>
+</tr>
+<tr>
+  <td class="b1_1">所属分类</td>
+  <td colspan="2" class="b1_1"><select ID="ClassID" name="ClassID">
+    <%
+   Set Rsp=server.CreateObject("adodb.recordset") 
+   Sqlp ="select * from "&tbname&"_LinkClass order by num"   
+   rsp.open sqlp,conn,1,1 
+   Response.Write("<option value="""">请选择分类</option>") 
+   If Rsp.Eof and Rsp.Bof Then
+      Response.Write("<option value="""">请先添加分类</option>")
+   Else
+      Do while not Rsp.Eof   
+         Response.Write("<option value=" & """" & Rsp("ID") & """" & "")
+         If rs("ClassID")=Rsp("ID") Then
+            Response.Write(" selected")
+         End If
+         Response.Write(">|-" & Rsp("LinkName") & "")			
+         Response.Write("</option>" ) 
+      Rsp.Movenext   
+      Loop   
+   End if
+   %>
+  </select></td>
+</tr>
+<tr>
+  <td class="b1_1">链接地址</td>
+  <td colspan="2" class="b1_1"><input name="LinkUrl" type="text" id="LinkUrl" value="<%=rs("LinkUrl")%>" size="40" maxlength="50"></td>
+</tr>
+<tr>
+  <td class="b1_1">Logo地址</td>
+  <td width="21%" class="b1_1"><input name="LogoUrl" type="text" id="LogoUrl" value="<%=rs("LogoUrl")%>" size="40" maxlength="50"></td>
+  <td width="59%" class="b1_1"><iframe src="upload.asp?action=link" width="400" height="25" frameborder="0" scrolling="no"></iframe></td>
+</tr>
+<tr>
+  <td class="b1_1">开始时间</td>
+  <td colspan="2" class="b1_1"><input name='AddTime' type='text' class="borderall" id="AddTime" style="width:140px;" onFocus="WdatePicker({isShowClear:false,readOnly:true,skin:'whyGreen'})" value="<%=rs("AddTime")%>"/></td>
+</tr>
+<tr>
+  <td class="b1_1">到期时间</td>
+  <td colspan="2" class="b1_1"><input name='LastTime' type='text' class="borderall" id="LastTime" style="width:140px;" onFocus="WdatePicker({isShowClear:false,readOnly:true,minDate:'%y-%M-#{%d}',skin:'whyGreen'})" value="<%=rs("LastTime")%>"/></td>
+</tr>
+<tr>
+  <td class="b1_1">排序</td>
+  <td colspan="2" class="b1_1"><input name="Num" type="text" id="Num" value="<%=rs("Num")%>" size="5" maxlength="3"> 
+  <span class="note">值越小越靠前</span></td>
+</tr>
+<tr>
+  <td class="b1_1">联系QQ</td>
+  <td colspan="2" class="b1_1"><input name="QQ" type="text" id="QQ" value="<%=rs("qq")%>" size="15" maxlength="10"></td>
+</tr>
+<tr>
+  <td class="b1_1">费用</td>
+  <td colspan="2" class="b1_1"><input name="Moneys" type="text" id="Moneys" value="<%=rs("Moneys")%>" size="8" maxlength="5"></td>
+</tr>
+<tr>
+  <td valign="top" class="b1_1">备注</td>
+  <td colspan="2" class="b1_1"><textarea name="Content" cols="50" rows="5" id="Content"><%=rs("Content")%></textarea></td>
+</tr>
+<tr> 
+<td width="20%" class="b1_1"><input name="ID" type="hidden" id="ID" value="<%=rs("ID")%>"></td>
+<td colspan="2" class="b1_1"><input name="Submit" type="submit" class="bnt" value="修 改"></td>
+</tr>
+</form>
+</table>
+<%
+rs.close
+set rs=nothing
+end sub
+
+sub savedit()
+	ID				=trim(request.form("ID"))
+	Title			=trim(request.form("Title"))
+	ClassID			=trim(request.form("ClassID"))
+	LinkUrl			=trim(request.form("LinkUrl"))
+	LogoUrl			=trim(request.form("LogoUrl"))
+	AddTime			=trim(request.form("AddTime"))
+	LastTime		=trim(request.form("LastTime"))
+	Num				=trim(request.form("Num"))
+	QQ				=trim(request.form("qq"))
+	Content			=request.form("Content")
+	Moneys			=request.form("Moneys")
+	
+	if Title="" or LinkUrl="" or ClassID="" or LastTime="" then
+		Call Alert ("请填写完整","-1")
 	end if
 	
-	sql="update BBS_Link set link_order="& new_order &" where id="& modid &""
-	set rs=bbsconn.execute(sql)
-	call dperror_admin(true,"排序成功","?")
-	response.End()
-end select
-%> 
-    
-   
-<table class="table table-bordered table-hover table-responsive table-striped">
-<thead>
-          <tr> 
-            <th>排序</th>
-            <th>链接站名</th>            
-            <th>链接地址</th>
-            <th>添加时间</th>            
-            <th>操作</th>          
-    </tr>
-          </thead>
-          <%
-		  sql="select * from BBS_Link order by link_order desc"
-		  set rs=server.CreateObject("adodb.recordset")
-		  rs.open sql,bbsconn,1,1
-		  i=1
-  page_size=12
-		if not rs.eof then
-			rs.PageSize=page_size
-			pagecount=rs.PageCount '获取总页码 
-			if page_no<=0 then page_no=1 '判断 
-			if page_no>pagecount then page_no=pagecount
-			rs.AbsolutePage=page_no '设置本页页码 
-			allRecordCount=rs.RecordCount
-		else
-			%><thead>
-			<tr> 
-				<td colspan="8" style="height:500px; background-color:#fff; text-align:center;">
-                	暂无链接!
-				
-              </td>
-			  </tr>
-              </thead>
-			<%
-			end if
-			%>
-			<tbody>
-			<%
-			allRecordCount=chk_num(allRecordCount)
-		  do while not rs.eof	
-		  		link_id=rs("id")
-				link_title=rs("link_title")
-				link_url=rs("link_url")
-				link_time=rs("link_time")
-				link_order=chk_num(rs("link_order"))
-				
-			  %>
-			  <tr> 
-				<td><%=i+(page_no-1)*page_size%></td>
-				<td><%=link_title%></td>
-				<td><%=link_url%></td>
-                <td><%=link_time%></td>
-                <td>
-                <a href="?mydo=order&modid=<%=link_id%>&order_how=1" class="btn btn-info ">排前</a>
-				<a href="?mydo=del&modid=<%=link_id%>" class="btn btn-danger " onClick="return makesure('是否删除？无法恢复');">删除</a>
-				<a href="?mydo=order&modid=<%=link_id%>&order_how=2" class="btn btn-info ">排后</a>
-                </td>               
-			  </tr>
-			  <%
-			  if i>page_size then exit do
-			  i=i+1
-			  rs.movenext
-		  loop
-		  
+	set rs = server.CreateObject ("adodb.recordset")
+	sql="select * from "&tbname&"_Link where ID="&id&""
+	rs.open sql,conn,1,3
+	if not(rs.eof and rs.bof) then
+	
+		rs("Title")				=Title
+		rs("ClassID")			=ClassID
+		rs("LinkUrl")			=LinkUrl	
+		rs("LogoUrl")			=LogoUrl
+		rs("AddTime")			=AddTime
+		rs("LastTime")			=LastTime
+		rs("Num")				=Num
+		rs("qq")				=qq
+		rs("Content")			=Content
+		rs("Moneys")				=Moneys
+		
+		rs.update
+		Call Alert ("修改成功","Admin_Link.asp")
+	else
+		Call Alert ("修改错误","Admin_Link.asp")
+	end if
+	rs.close
+	set rs=nothing
+end sub
 
-call display_blanktr(i,page_size,8)
-		  %>
-    
-         </tbody>
-         
-   
-  <thead>
-  	<tr>
-        <td colspan="6" class="text-center">
-            <ul class="pagination">
-            	<%=admin_page_no(page_no,pagecount,"key_word="& key_word &"&dtfrom="& dtfrom &"&dtto="& dtto &"&see_type="& see_type &"")%>
-            </ul>
-        </td>
-    </tr>
-  </thead>    
+Sub Admin_ShowClass_Option()
+   Dim Sqlp,Rsp,TempStr
+   Sqlp ="select * from "&tbname&"_LinkClass order by num"   
+   Set Rsp=server.CreateObject("adodb.recordset")   
+   rsp.open sqlp,conn,1,1 
+   Response.Write("<option value="""">请选择分类</option>") 
+   If Rsp.Eof and Rsp.Bof Then
+      Response.Write("<option value="""">请先添加分类</option>")
+   Else
+      Do while not Rsp.Eof   
+         Response.Write("<option value=" & """" & Rsp("ID") & """" & "")
+		 If int(session("YaoLinkClassID"))=Rsp("ID") then
+				Response.Write(" selected" ) 
+		 End if
+         Response.Write(">|-" & Rsp("LinkName") & "")
+	     Response.Write("</option>" ) 
+      Rsp.Movenext   
+      Loop   
+   End if
+   Rsp.close:Set Rsp=nothing
+End sub
 
-        </table>
-
+Sub delAll
+ID=Trim(Request("ID"))
+ytype=Request("ytype")
+page=request("page")
+If ID="" And Request("Del")<>"编辑" Then
+	  Call Alert ("请选择记录!","-1")
+ElseIf Request("Del")="批量未审" Then
+   set rs=conn.execute("Update "&tbname&"_Link set yn = 0 where ID In(" & ID & ")")
+   Response.Write("<script>alert(""操作成功！"");location.href=""Admin_Link.asp"";</script>")
+ElseIf Request("Del")="批量审核" Then
+   set rs=conn.execute("Update "&tbname&"_Link set yn = 1 where ID In(" & ID & ")")
+   Response.Write("<script>alert(""操作成功！"");location.href=""Admin_Link.asp"";</script>")
+ElseIf Request("Del")="移动" Then
+		If ytype="" then
+			Response.Write("<script language=javascript>alert('请选择类别!');history.back(1);</script>")
+			Response.End
+		End if
+   set rs=conn.execute("Update "&tbname&"_Link set ClassID = "&ytype&" where ID In(" & ID & ")")
+   Response.Write("<script>alert(""操作成功！"");location.href=""Admin_Link.asp"";</script>")
+ElseIf Request("Del")="删除" Then
+	set rs=conn.execute("delete from "&tbname&"_Link where ID In(" & ID & ")")
+    Call Alert ("操作成功","Admin_Link.asp") 
+ElseIf Request("Del")="编辑" Then
+	Server.ScriptTimeout=99999999
+	Dim Num,Moneys,AddTimes,LastTime,qq
+	For i=1 to request.form("LinkID").count
+		LinkID=replace(request.form("LinkID")(i),"'","")
+		Num=replace(request.form("Num")(i),"'","")
+		Moneys=replace(request.form("Moneys")(i),"'","")
+		AddTimes=replace(request.form("AddTimes")(i),"'","")
+		LastTime=replace(request.form("LastTime")(i),"'","")
+		Title=replace(request.form("Title")(i),"'","")
+		LinkUrl=replace(request.form("LinkUrl")(i),"'","")
+		qq=replace(request.form("qq")(i),"'","")
+		set rs=conn.Execute("select * from "&tbname&"_Link where ID="&LinkID)
+		conn.Execute("Update "&tbname&"_Link set Title='"&Title&"',LinkUrl='"&LinkUrl&"',Num="&Num&",Moneys="&Moneys&",AddTime='"&AddTimes&"',LastTime='"&LastTime&"',qq='"&qq&"' where ID="&LinkID)
+	next
+    Call Alert ("操作成功","Admin_Link.asp")  
+End If
+End Sub
+%>
+<!--#include file="Admin_copy.asp"-->
 </body>
 </html>

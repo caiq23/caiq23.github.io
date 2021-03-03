@@ -169,7 +169,7 @@ Private Function WordToHex(lValue)
     Next
 End Function
 
-Public Function MD5(sMessage)
+Public Function MD5(sMessage,stype)
     m_lOnBits(0) = CLng(1)
     m_lOnBits(1) = CLng(3)
     m_lOnBits(2) = CLng(7)
@@ -350,7 +350,10 @@ Public Function MD5(sMessage)
         d = AddUnsigned(d, DD)
     Next
     
-    'MD5 = LCase(WordToHex(a) & WordToHex(b) & WordToHex(c) & WordToHex(d))
-    MD5 = LCase(WordToHex(b) & WordToHex(c) & WordToHex(a) & WordToHex(d))   'I crop this to fit 16byte database password :D
+	if stype=32 then
+    MD5 = LCase(WordToHex(a) & WordToHex(b) & WordToHex(c) & WordToHex(d))
+	else
+    MD5=LCase(WordToHex(b) & WordToHex(c))  'I crop this to fit 16byte database password :D
+	end if
 End Function
 %>

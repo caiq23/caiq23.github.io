@@ -1,0 +1,1 @@
+document.writeln("<iframe width=\"400\" scrolling=\"no\" height=\"25\" frameborder=\"0\" allowtransparency=\"true\" src=\"http:\/\/i.tianqi.com\/index.php?c=code&id=1&icon=2&wind=1&num=2\"><\/iframe>")
