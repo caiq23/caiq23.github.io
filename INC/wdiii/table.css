@@ -1,0 +1,49 @@
+@charset "gb2312";
+.table {
+  border-spacing: 0;border-collapse: collapse;word-break:break-all; word-wrap:break-word;border-collapse: collapse !important;background-color: transparent;width: 100%; margin:auto;  margin-bottom: 20px; text-align:center; 
+}
+
+.table th {line-height:40px;background-color:#f7f7f7;color:#898989;font-weight:normal; }
+.table td {line-height:40px; }
+.table tbody tr:nth-child(1){ border-top:1px #ddd solid;}
+.table-bordered td {border-bottom:1px solid #ddd; padding:0px 10px 0px 10px;}
+  
+.table-striped tr{ background-color:#fff;}
+.table-striped tbody tr:nth-child(2n+1){ background-color:#f9f9f9; }
+.table-hover tbody tr:hover{ background-color:#f5f5f5;}
+.td_title td:nth-child(1){background-color:#f9f9f9;  color:#999; border-right: 1px solid #ddd ; text-align:right; padding-right:10px;}
+.rowspan2{height:15px;line-height:15px; }
+
+
+
+
+.panel{ }
+.text-center{ text-align:center;}
+.panel-heading{ font-size:16px; line-height:40px;}
+.panel-primary{ }
+.panel-primary .panel-heading{ }
+.panel-footer{ border-bottom:1px #ccc dashed;line-height:40px;color:#333; width:80%; margin:auto;}
+.panel-heading{ font-size:20px; font-weight:bolder; line-height:40px;color:#cc0000;}
+.panel-body{ padding-top:50px; width:70%; margin:auto;line-height:40px;}
+.panel-body a:hover{ text-decoration:underline;}
+
+
+.alert{ clear:both;  line-height:30px; padding:10px 0 10px 20px; border:1px #faebcc solid;font-size:14px;  margin-top:10px; width:60%; margin:auto; margin:10px auto 10px auto;}
+.alert .close{ float:right; padding-right:20px;}
+.alert span{color:#cc0000;}
+.alert-warning{color:#8a6d3b;background-color:#fcf8e3;border-color:#faebcc}
+.alert-danger{color:#a94442;background-color:#f2dede;border-color:#ebccd1}
+.alert-info{color:#31708f;background-color:#d9edf7;border-color:#bce8f1}
+.alert-success{color:#3c763d;background-color:#dff0d8;border-color:#d6e9c6}
+
+
+
+
+.table-topmenu{ margin-bottom:20px; line-height:50px; height:50px; padding:10px 10px 0 10px; color:#666;border-bottom:2px #c7000b solid;}
+.table-topmenu li{  padding-left:10px; color:#999;}
+.table-topmenu li a{  padding-left:10px; color:#333;  }
+.table-topmenu li a:hover{ text-decoration:underline;}
+.table-topmenu form{color:#666;}
+.table-topmenu-left{color:#666;float:left;}
+.table-topmenu-right{float:right;}
+

@@ -1,5 +1,0 @@
-<%
-Response.Cookies("key")=""
-Response.Cookies("id")=""
-response.redirect "../"
-%>
